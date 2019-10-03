@@ -1,5 +1,5 @@
-window.addEventListener('deviceorientation', deviceOrientationListener, true);
-window.addEventListener('devicemotion', deviceMotionListener, true);
+window.addEventListener('deviceorientation', onDeviceOrientation, true);
+window.addEventListener('devicemotion', onDeviceMotion, true);
 
 function onDeviceOrientation(e) {
   console.log('onDeviceOrientation', e);
