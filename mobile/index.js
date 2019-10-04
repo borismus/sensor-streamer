@@ -6,6 +6,11 @@ function onLoad() {
   const searchParams = new URLSearchParams(location.search);
   channel = searchParams.get('channel');
 
+  // Access to sensor data requires user action.
+  document.querySelector('#start').addEventListener('click', onStart);
+}
+
+function onStart() {
   window.addEventListener('deviceorientation', onDeviceOrientation, true);
   window.addEventListener('devicemotion', onDeviceMotion, true);
 }
