@@ -1,4 +1,5 @@
 import '../common/firebase.js';
+import {generateName} from './name-generator.js';
 
 let channel;
 let isConnected = false;
@@ -6,6 +7,11 @@ let isConnected = false;
 function onLoad() {
   const searchParams = new URLSearchParams(location.search);
   channel = searchParams.get('channel');
+  if (!channel) {
+    channel = generateName();
+    // Redirect.
+    window.location.search = `?channel=${channel}`;
+  }
 
   // Listen for data coming in on this channel.
   const path = `channel/${channel}`;
