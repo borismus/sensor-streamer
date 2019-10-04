@@ -1,4 +1,4 @@
-import './firebase';
+import '../firebase';
 
 let channel;
 
