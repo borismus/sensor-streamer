@@ -11,6 +11,7 @@ function onLoad() {
 }
 
 function onStart() {
+  console.log('onStart');
   window.addEventListener('deviceorientation', onDeviceOrientation, true);
   window.addEventListener('devicemotion', onDeviceMotion, true);
 }
