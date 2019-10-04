@@ -1,4 +1,4 @@
-import '../firebase';
+import '../common/firebase.js';
 
 let channel;
 
@@ -14,11 +14,11 @@ function onDeviceOrientation(e) {
   console.log('onDeviceOrientation', e);
   const {alpha, beta, gamma, absolute} = e;
   const timestamp = performance.now();
-  const orientation = {alpha, beta, gamma, absolute, timestamp};
-  document.querySelector('#device-motion').innerHTML = JSON.stringify(orientation);
+  const sensorData = {alpha, beta, gamma, absolute, timestamp};
+  document.querySelector('#device-motion').innerHTML = JSON.stringify(sensorData);
 
   const path = `channel/${channel}`;
-  firebase.database().ref(path).push(orientation);
+  firebase.database().ref(path).push(sensorData);
 }
 
 function onDeviceMotion(e) {
