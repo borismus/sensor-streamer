@@ -12,6 +12,7 @@ function onLoad() {
 
 function onStart() {
   console.log('onStart');
+  DeviceOrientationEvent.requestPermission();
   window.addEventListener('deviceorientation', onDeviceOrientation, true);
   window.addEventListener('devicemotion', onDeviceMotion, true);
 }
