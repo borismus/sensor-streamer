@@ -32,8 +32,8 @@ function onDeviceMotion(e) {
   console.log('onDeviceMotion', e);
   const {alpha, beta, gamma} = e.rotationRate;
   const timestamp = Date.now();
-  const motion = {alpha, beta, gamma, timestamp};
-  document.querySelector('#device-motion').innerHTML = JSON.stringify(motion);
+  const sensorData = {alpha, beta, gamma, timestamp};
+  document.querySelector('#device-motion').innerHTML = JSON.stringify(sensorData);
 
   const path = `channel/${channel}`;
   firebase.database().ref(path).push(sensorData);
