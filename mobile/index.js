@@ -13,7 +13,7 @@ function onLoad() {
 function onStart() {
   console.log('onStart');
   DeviceOrientationEvent.requestPermission();
-  window.addEventListener('deviceorientation', onDeviceOrientation, true);
+  //window.addEventListener('deviceorientation', onDeviceOrientation, true);
   window.addEventListener('devicemotion', onDeviceMotion, true);
 }
 
@@ -31,8 +31,12 @@ function onDeviceOrientation(e) {
 function onDeviceMotion(e) {
   console.log('onDeviceMotion', e);
   const {alpha, beta, gamma} = e.rotationRate;
-  const motion = {alpha, beta, gamma};
+  const timestamp = Date.now();
+  const motion = {alpha, beta, gamma, timestamp};
   document.querySelector('#device-motion').innerHTML = JSON.stringify(motion);
+
+  const path = `channel/${channel}`;
+  firebase.database().ref(path).push(sensorData);
 }
 
 window.addEventListener('load', onLoad);
