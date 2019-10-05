@@ -20,7 +20,7 @@ function onStart() {
 function onDeviceOrientation(e) {
   console.log('onDeviceOrientation', e);
   const {alpha, beta, gamma} = e;
-  const timestamp = performance.now();
+  const timestamp = Date.now();
   const sensorData = {alpha, beta, gamma, timestamp};
   document.querySelector('#device-motion').innerHTML = JSON.stringify(sensorData);
 
