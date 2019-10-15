@@ -3,13 +3,30 @@ import {serial} from './serial.js';
 window.addEventListener('load', onLoad);
 let port;
 const status = document.querySelector('#status');
-const button = document.querySelector('#connect');
+const connectButton = document.querySelector('#connect');
+const buttonC = document.querySelector('#button-c');
+const buttonZ = document.querySelector('#button-z');
 
+const TIMESERIES_STYLES = [
+  { strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.3)', lineWidth:1 },
+  { strokeStyle:'rgb(255, 0, 255)', fillStyle:'rgba(255, 0, 255, 0.3)', lineWidth:1 },
+  { strokeStyle:'rgb(0, 0, 255)', fillStyle:'rgba(0, 0, 255, 0.3)', lineWidth:1 },
+  { strokeStyle:'rgb(0, 255, 255)', fillStyle:'rgba(0, 255, 255, 0.3)', lineWidth:1 },
+  { strokeStyle:'rgb(255, 255, 0)', fillStyle:'rgba(255, 255, 0, 0.3)', lineWidth:1 },
+]
 
+const timeSeries = [];
+for (let i = 0; i < 7; i++) {
+  timeSeries.push(new TimeSeries());
+}
+
+let buffer = '';
+let history = [];
 
 function onLoad() {
-  button.addEventListener('click', startConnecting);
+  connectButton.addEventListener('click', startConnecting);
   status.innerText = 'onLoad';
+  showLinePlot();
 }
 
 async function startConnecting() {
@@ -38,9 +55,6 @@ async function connect(port) {
   }
 }
 
-let buffer = '';
-let history = [];
-
 function processSensorData(data) {
   buffer += data;
 
@@ -58,7 +72,7 @@ function processSensorData(data) {
 }
 
 function processFrame(frame) {
-  const values = frame.split(',');
+  const values = frame.split(',').map(n => parseFloat(n));
   const data = {
     joystick: {
       x: values[0],
@@ -72,11 +86,32 @@ function processFrame(frame) {
     z: values[5],
     c: values[6],
   }
-  console.log('Data point', data);
   history.push(data);
+  const now = Date.now();
+  for (let i = 0; i < 5; i++) {
+    const value = values[i];
+    timeSeries[i].append(now, value);
+  }
+
+  // Show button presses.
+  buttonC.classList.toggle('pressed', !!data.c);
+  buttonZ.classList.toggle('pressed', !!data.z);
 }
 
 function isFull(frame) {
-  const count = frame.split(',').length;
-  return count === 7;
+  const values = frame.split(',');
+  const last = values[values.length - 1];
+  return values.length === 7 && last != '';
+}
+
+function showLinePlot() {
+  const smoothie = new SmoothieChart({
+    grid: { strokeStyle:'rgb(125, 0, 0)', fillStyle:'rgb(60, 0, 0)',
+      lineWidth: 1, millisPerLine: 500, verticalSections: 20, },
+  });
+  smoothie.streamTo(document.querySelector('#sensor-plot'), 1000);
+  for (let [i, ts] of timeSeries.entries()) {
+    const ind = i % TIMESERIES_STYLES.length;
+    smoothie.addTimeSeries(ts, TIMESERIES_STYLES[ind]);
+  }
 }

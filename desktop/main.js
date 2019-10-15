@@ -57,15 +57,6 @@ function showLinePlot() {
   for (let [i, ts] of timeSeries.entries()) {
     smoothie.addTimeSeries(ts, TIMESERIES_STYLES[i]);
   }
-
-    /*
-  // Add a random value to each line every second
-  setInterval(() => {
-    for (let series of timeSeries) {
-      series.append(new Date().getTime(), Math.random());
-    }
-  }, 1000);
-  */
 }
 
 function showQRCode(url) {

@@ -2,11 +2,35 @@
 <html>
   <head>
     <title>Nunchuck WebUSB Demo</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.controller-button {
+  width: 64px;
+  height: 64px;
+  background: black;
+  color: white;
+}
+
+.controller-button.pressed {
+  background: red;
+}
+
+
+</style>
   </head>
   <body>
-    <p>
-      <button id="connect">Connect</button> <span id="status"></span>
-    </p>
+    <div>
+    <button id="connect">Connect</button> <span id="status"></span>
+    </div>
+    <canvas id="sensor-plot" width="800" height="600"></canvas>
+    <div id="button-z" class="controller-button">Z</div>
+    <div id="button-c" class="controller-button">C</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smoothie/1.34.0/smoothie.js"></script>
     <script type="module" src="main.js"></script>
   </body>
 </html>
