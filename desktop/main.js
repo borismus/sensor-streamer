@@ -1,5 +1,5 @@
 import '../common/firebase.js';
-import {generateName} from './name-generator.js';
+import {generateName} from '../common/name-generator.js';
 
 let channel;
 let isConnected = false;

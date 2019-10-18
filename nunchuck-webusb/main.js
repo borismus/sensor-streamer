@@ -1,4 +1,5 @@
 import {serial} from './serial.js';
+import {SensorRecorder} from './SensorRecorder.js';
 
 window.addEventListener('load', onLoad);
 let port;
@@ -6,6 +7,8 @@ const status = document.querySelector('#status');
 const connectButton = document.querySelector('#connect');
 const buttonC = document.querySelector('#button-c');
 const buttonZ = document.querySelector('#button-z');
+
+const recorder = new SensorRecorder();
 
 const TIMESERIES_STYLES = [
   { strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.3)', lineWidth:1 },
@@ -86,6 +89,7 @@ function processFrame(frame) {
     z: values[5],
     c: values[6],
   }
+  const prevData = history[history.length - 1];
   history.push(data);
   const now = Date.now();
   for (let i = 0; i < 5; i++) {
@@ -96,6 +100,32 @@ function processFrame(frame) {
   // Show button presses.
   buttonC.classList.toggle('pressed', !!data.c);
   buttonZ.classList.toggle('pressed', !!data.z);
+
+  // Make holding down the Z button save the accelerometer data to the database.
+  if (prevData && !prevData.z && data.z) {
+    // We just pressed down the Z button.
+    onZPressed();
+  }
+  if (prevData && prevData.z && !data.z) {
+    onZReleased();
+  }
+  if (data.z) {
+    const sensorData = Object.assign({}, data.accelerometer);
+    sensorData.timestamp = now;
+    recorder.addData(sensorData);
+  }
+}
+
+function onZPressed() {
+  console.log('onZPressed');
+  recorder.start();
+
+  console.log(`Saving data to ${recorder.channel}.`);
+}
+
+function onZReleased() {
+  console.log('onZReleased');
+  recorder.stop();
 }
 
 function isFull(frame) {
