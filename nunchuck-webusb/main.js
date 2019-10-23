@@ -18,8 +18,10 @@ const TIMESERIES_STYLES = [
   { strokeStyle:'rgb(255, 255, 0)', fillStyle:'rgba(255, 255, 0, 0.3)', lineWidth:1 },
 ]
 
+const FIELD_COUNT = 8;
+
 const timeSeries = [];
-for (let i = 0; i < 7; i++) {
+for (let i = 0; i < FIELD_COUNT; i++) {
   timeSeries.push(new TimeSeries());
 }
 
@@ -30,6 +32,13 @@ function onLoad() {
   connectButton.addEventListener('click', startConnecting);
   status.innerText = 'onLoad';
   showLinePlot();
+
+  setInterval(() => {
+    const hz = estimateFrequency();
+    if (hz) {
+      console.info(`Estimated sensor sample rate: ${hz} Hz.`);
+    }
+  }, 1000);
 }
 
 async function startConnecting() {
@@ -77,22 +86,24 @@ function processSensorData(data) {
 function processFrame(frame) {
   const values = frame.split(',').map(n => parseFloat(n));
   const data = {
+    // Store timestamp in seconds.
+    timestamp: values[0] / 1000,
     joystick: {
-      x: values[0],
-      y: values[1],
+      x: values[1],
+      y: values[2],
     },
     accelerometer: {
-      alpha: values[2],
-      beta: values[3],
-      gamma: values[4],
+      alpha: values[3],
+      beta: values[4],
+      gamma: values[5],
     },
-    z: values[5],
-    c: values[6],
+    z: values[6],
+    c: values[7],
   }
+  const now = Date.now();
   const prevData = history[history.length - 1];
   history.push(data);
-  const now = Date.now();
-  for (let i = 0; i < 5; i++) {
+  for (let i = 1; i < 6; i++) {
     const value = values[i];
     timeSeries[i].append(now, value);
   }
@@ -132,14 +143,14 @@ function onButtonReleased(button) {
 
 function onButtonHeld(button, data) {
   const sensorData = Object.assign({}, data.accelerometer);
-  sensorData.timestamp = now;
-  recorder.addData(sensorData);
+  sensorData.timestamp = data.timestamp;
+  recorder.addData(data);
 }
 
 function isFull(frame) {
   const values = frame.split(',');
   const last = values[values.length - 1];
-  return values.length === 7 && last != '';
+  return values.length === FIELD_COUNT && last != '';
 }
 
 function showLinePlot() {
@@ -152,4 +163,30 @@ function showLinePlot() {
     const ind = i % TIMESERIES_STYLES.length;
     smoothie.addTimeSeries(ts, TIMESERIES_STYLES[ind]);
   }
+}
+
+function estimateFrequency() {
+  const last = history[history.length - 1];
+  let first;
+  let firstIndex;
+  // Find a value in history that's about a second in the past.
+  for (let i = history.length - 1; i >= 0; i--) {
+    const item = history[i];
+    const ts = item.timestamp;
+    if (last.timestamp - ts > 1) {
+      first = item;
+      firstIndex = i;
+      break;
+    }
+  }
+  // If history is too small, no point in estimating frequency.
+  if (!first) {
+    return null;
+  }
+
+  const duration = last.timestamp - first.timestamp;
+  const count = history.length - firstIndex;
+
+  // Frequency is number of samples per second.
+  return count / duration;
 }

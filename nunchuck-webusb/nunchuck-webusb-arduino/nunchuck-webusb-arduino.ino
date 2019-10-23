@@ -30,7 +30,7 @@ void loop() {
   if (nunchuk_read()) {
     print_all();
   }
-  delay(10);
+  delay(50);
 }
 
 /**
@@ -38,6 +38,8 @@ void loop() {
  * Serial interface so that these events are sent through WebUSB.
 */
 void print_all() {
+  Serial.print(millis(), DEC);
+  Serial.print(",");
   Serial.print(nunchuk_joystickX(), DEC);
   Serial.print(",");
   Serial.print(nunchuk_joystickY(), DEC);
