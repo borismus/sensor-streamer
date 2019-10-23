@@ -101,31 +101,39 @@ function processFrame(frame) {
   buttonC.classList.toggle('pressed', !!data.c);
   buttonZ.classList.toggle('pressed', !!data.z);
 
-  // Make holding down the Z button save the accelerometer data to the database.
-  if (prevData && !prevData.z && data.z) {
-    // We just pressed down the Z button.
-    onZPressed();
-  }
-  if (prevData && prevData.z && !data.z) {
-    onZReleased();
-  }
-  if (data.z) {
-    const sensorData = Object.assign({}, data.accelerometer);
-    sensorData.timestamp = now;
-    recorder.addData(sensorData);
+  const buttons = ['c', 'z'];
+
+  for (const button of buttons) {
+    // Make holding down the Z button save the accelerometer data to the database.
+    if (prevData && !prevData[button] && data[button]) {
+      // We just pressed down the Z button.
+      onButtonPressed(button);
+    }
+    if (prevData && prevData[button] && !data[button]) {
+      onButtonReleased(button);
+    }
+    if (data[button]) {
+      onButtonHeld(button, data);
+    }
   }
 }
 
-function onZPressed() {
-  console.log('onZPressed');
-  recorder.start();
+function onButtonPressed(button) {
+  console.log(`onButtonPressed: ${button}`);
+  recorder.start(button);
 
   console.log(`Saving data to ${recorder.channel}.`);
 }
 
-function onZReleased() {
-  console.log('onZReleased');
+function onButtonReleased(button) {
+  console.log(`onButtonReleased: ${button}`);
   recorder.stop();
+}
+
+function onButtonHeld(button, data) {
+  const sensorData = Object.assign({}, data.accelerometer);
+  sensorData.timestamp = now;
+  recorder.addData(sensorData);
 }
 
 function isFull(frame) {
