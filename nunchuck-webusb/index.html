@@ -19,12 +19,23 @@ body {
   background: red;
 }
 
+.controls {
+  display: block;
+}
+
 
 </style>
   </head>
   <body>
-    <div>
-    <button id="connect">Connect</button> <span id="status"></span>
+    <label for="status">Status:</label>
+    <span id="status"></span>
+    <div class="controls">
+      <button id="connect">Connect</button>
+    </div>
+    <div class="connected-controls">
+      <label for="motion-name">Motion name:</label>
+      <input id="motion-name" type="text">
+      <button id="save">Add example</button>
     </div>
     <canvas id="sensor-plot" width="800" height="600"></canvas>
     <div id="button-z" class="controller-button">Z</div>

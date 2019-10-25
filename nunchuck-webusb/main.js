@@ -7,6 +7,8 @@ const status = document.querySelector('#status');
 const connectButton = document.querySelector('#connect');
 const buttonC = document.querySelector('#button-c');
 const buttonZ = document.querySelector('#button-z');
+const motionNameInput = document.querySelector('#motion-name');
+const saveButton = document.querySelector('#save');
 
 const recorder = new SensorRecorder();
 
@@ -30,7 +32,8 @@ let history = [];
 
 function onLoad() {
   connectButton.addEventListener('click', startConnecting);
-  status.innerText = 'onLoad';
+  saveButton.addEventListener('click', saveLastSecond);
+  status.innerText = 'Loaded page.';
   showLinePlot();
 
   setInterval(() => {
@@ -93,9 +96,9 @@ function processFrame(frame) {
       y: values[2],
     },
     accelerometer: {
-      alpha: values[3],
-      beta: values[4],
-      gamma: values[5],
+      x: values[3],
+      y: values[4],
+      z: values[5],
     },
     z: values[6],
     c: values[7],
@@ -131,20 +134,14 @@ function processFrame(frame) {
 
 function onButtonPressed(button) {
   console.log(`onButtonPressed: ${button}`);
-  recorder.start(button);
-
-  console.log(`Saving data to ${recorder.channel}.`);
+  saveLastSecond();
 }
 
 function onButtonReleased(button) {
   console.log(`onButtonReleased: ${button}`);
-  recorder.stop();
 }
 
 function onButtonHeld(button, data) {
-  const sensorData = Object.assign({}, data.accelerometer);
-  sensorData.timestamp = data.timestamp;
-  recorder.addData(data);
 }
 
 function isFull(frame) {
@@ -163,6 +160,25 @@ function showLinePlot() {
     const ind = i % TIMESERIES_STYLES.length;
     smoothie.addTimeSeries(ts, TIMESERIES_STYLES[ind]);
   }
+}
+
+function getRecentHistory(duration) {
+  const last = history[history.length - 1];
+  const out = [];
+  // Find a value in history that's about a second in the past.
+  for (let i = history.length - 1; i >= 0; i--) {
+    const item = history[i];
+    // Argh, every time I call splice, I have to look up its syntax.
+    out.splice(0, 0, item);
+    const ts = item.timestamp;
+    if (last.timestamp - ts > duration) {
+      break;
+    }
+    if (i === 0) {
+      console.warn(`getRecentHistory does not have ${duration} seconds worth of data.`);
+    }
+  }
+  return out;
 }
 
 function estimateFrequency() {
@@ -189,4 +205,22 @@ function estimateFrequency() {
 
   // Frequency is number of samples per second.
   return count / duration;
+}
+
+function saveLastSecond() {
+  const motionName = motionNameInput.value;
+  if (!motionName) {
+    status.innerText = 'Motion name required.';
+    return;
+  }
+  // Save the last 1000ms worth of data.
+  recorder.start(motionName);
+  const recentHistory = getRecentHistory(1);
+  for (let item of recentHistory) {
+    const save = Object.assign({}, item.accelerometer);
+    save.ts = item.timestamp;
+    recorder.addData(save);
+  }
+  recorder.stop();
+  status.innerText = `Saved "${recorder.exampleName}": ${recentHistory.length} samples to motion named ${motionName}.`;
 }
