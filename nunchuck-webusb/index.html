@@ -2,10 +2,42 @@
 <html>
   <head>
     <title>Nunchuck WebUSB Demo</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Google+Sans:400,700" rel="stylesheet">
 <style>
-body {
+html, body {
   margin: 0;
   padding: 0;
+  font-family: 'Google Sans', sans-serif;
+}
+
+
+#disconnected {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+#disconnected button {
+  font-size: 36px;
+  padding: 24px;
+}
+
+#connected {
+  display: none;
+}
+
+.connected-controls {
+  display: none;
+}
+
+#buttons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: white;
 }
 
 .controller-button {
@@ -13,33 +45,40 @@ body {
   height: 64px;
   background: black;
   color: white;
+  margin: 12px;
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
 }
 
 .controller-button.pressed {
   background: red;
 }
 
-.controls {
-  display: block;
-}
-
-
 </style>
   </head>
   <body>
-    <label for="status">Status:</label>
-    <span id="status"></span>
-    <div class="controls">
+    <div id="disconnected">
       <button id="connect">Connect</button>
     </div>
-    <div class="connected-controls">
-      <label for="motion-name">Motion name:</label>
-      <input id="motion-name" type="text">
-      <button id="save">Add example</button>
+
+    <div id="connected">
+      <div class="connected-controls">
+        <label for="status">Status:</label>
+        <span id="status"></span>
+        <label for="motion-name">Motion name:</label>
+        <input id="motion-name" type="text">
+        <button id="save">Add example</button>
+      </div>
+      <canvas id="sensor-plot" width="800" height="600"></canvas>
+
+      <div id="buttons">
+        <div id="button-c" class="controller-button">C</div>
+        <div id="button-z" class="controller-button">Z</div>
+      </div>
     </div>
-    <canvas id="sensor-plot" width="800" height="600"></canvas>
-    <div id="button-z" class="controller-button">Z</div>
-    <div id="button-c" class="controller-button">C</div>
 
     <script src="https://www.gstatic.com/firebasejs/7.1.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.1.0/firebase-database.js"></script>

@@ -9,6 +9,9 @@ const buttonC = document.querySelector('#button-c');
 const buttonZ = document.querySelector('#button-z');
 const motionNameInput = document.querySelector('#motion-name');
 const saveButton = document.querySelector('#save');
+const connectedSection = document.querySelector('#connected');
+const disconnectedSection = document.querySelector('#disconnected');
+const canvas = document.querySelector('#sensor-plot');
 
 const recorder = new SensorRecorder();
 
@@ -31,6 +34,8 @@ let buffer = '';
 let history = [];
 
 function onLoad() {
+  window.addEventListener('resize', resizeCanvas, false);
+  resizeCanvas();
   connectButton.addEventListener('click', startConnecting);
   saveButton.addEventListener('click', saveLastSecond);
   status.innerText = 'Loaded page.';
@@ -42,6 +47,12 @@ function onLoad() {
       console.info(`Estimated sensor sample rate: ${hz} Hz.`);
     }
   }, 1000);
+}
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  console.log(`resizeCanvas: ${canvas.width} x ${canvas.height}.`);
 }
 
 async function startConnecting() {
@@ -65,6 +76,8 @@ async function connect(port) {
     port.onReceiveError = error => {
       console.error(error);
     };
+    connectedSection.style.display = 'block';
+    disconnectedSection.style.display = 'none';
   } catch (error) {
     status.innerText = `connect error: ${error}`;
   }
@@ -134,7 +147,7 @@ function processFrame(frame) {
 
 function onButtonPressed(button) {
   console.log(`onButtonPressed: ${button}`);
-  saveLastSecond();
+  //saveLastSecond();
 }
 
 function onButtonReleased(button) {
@@ -153,7 +166,7 @@ function isFull(frame) {
 function showLinePlot() {
   const smoothie = new SmoothieChart({
     grid: { strokeStyle:'rgb(125, 0, 0)', fillStyle:'rgb(60, 0, 0)',
-      lineWidth: 1, millisPerLine: 500, verticalSections: 20, },
+      lineWidth: 1, millisPerLine: 1000, verticalSections: 20, },
   });
   smoothie.streamTo(document.querySelector('#sensor-plot'), 1000);
   for (let [i, ts] of timeSeries.entries()) {

@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <Nunchuk.h>
+#include "Nunchuk.h"
 #include <WebUSB.h>
 
 /**
@@ -30,7 +30,6 @@ void loop() {
   if (nunchuk_read()) {
     print_all();
   }
-  delay(50);
 }
 
 /**
